@@ -23,6 +23,11 @@ public class LolTower : MonoBehaviour
     private float towerRange => SettingsManager.GameSettings.TowerRange;
 
     private static Collider[] overlapResults = new Collider[100];
+    [SerializeField] GameObject projectilePrefab;
+    [SerializeField] Transform projectileTransform;
+    private float timerParticle;
+    private float startTime;
+    public static bool isAttacked = false;
 
     private void OnDrawGizmos()
     {
@@ -94,7 +99,7 @@ public class LolTower : MonoBehaviour
 
             var minions = results.Where(o => o.CompareTag("Minion"))
                 .Select(o => o.attachedRigidbody.GetComponent<Minion>());
-            
+
             if (minions.Any(o => !o.IsDead))
             {
                 var minion = minions.First(o => !o.IsDead);
@@ -116,11 +121,20 @@ public class LolTower : MonoBehaviour
 
     private IEnumerator AttackMinion()
     {
+        
         //State Enter
         float timer = 0f;
         float attackCooldown = 1f;
         while (currentState == TowerStates.AttackMinion)
         {
+            if(isAttacked == false)
+            {
+               
+
+                StartCoroutine(ParticleAttack());
+               
+                isAttacked = true;
+            }
             timer += Time.deltaTime;
 
             if (timer >= attackCooldown)
@@ -192,5 +206,20 @@ public class LolTower : MonoBehaviour
             currentTargetPlayer = teamPlayer;
             currentState = TowerStates.AttackEnemy;
         }
+    }
+
+    public Minion GetCurrentMinion()
+    {
+        return currentTargetMinion;
+    }
+
+    IEnumerator ParticleAttack()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            Instantiate(projectilePrefab, projectileTransform.position, Quaternion.identity);
+            yield return new WaitForSeconds(1f);
+        }
+         
     }
 }

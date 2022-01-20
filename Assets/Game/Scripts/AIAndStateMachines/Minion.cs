@@ -8,6 +8,7 @@ public class Minion : MonoBehaviour
 {
     [SerializeField] private int maxHealth;
     [SerializeField] private NavMeshAgent nav;
+    [SerializeField] GameObject particleEffect;
 
     private int currentHealth;
     public bool IsDead;
@@ -21,7 +22,6 @@ public class Minion : MonoBehaviour
         var allTowers = TowersManager.AllTowers;
         closestTower = allTowers.OrderBy(o => (transform.position - o.transform.position).sqrMagnitude).First();
         nav.SetDestination(closestTower.transform.position);
-
     }
 
     // Update is called once per frame
@@ -40,12 +40,14 @@ public class Minion : MonoBehaviour
             IsDead = true;
             Die();
         }
-
         return IsDead;
     }
 
     private void Die()
     {
+        GameObject explosion = Instantiate(particleEffect, transform.position, Quaternion.identity);
+        
         Destroy(gameObject);
+        LolTower.isAttacked = false;
     }
 }
